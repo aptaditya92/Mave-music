@@ -15,7 +15,7 @@ async def on_ready():
     await client.load_extension("music")
     print(f"Logged in as {client.user}")
     nodes = [wavelink.Node(uri="http://lavalinkv4.serenetia.com:80",password="youshallnotpass")]
-    await wavelink.NodePool.connect(client=client, nodes=nodes)
+    await wavelink.Pool.connect(client=client, nodes=nodes)
     print("Lavalink Node Connected.")
     await client.change_presence(
         activity=discord.Activity(type=discord.ActivityType.listening, name=f"{PREFIX}help"))
