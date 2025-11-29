@@ -2,8 +2,9 @@ import discord
 from discord.ui import Button, View
 from discord.ext import commands
 import wavelink
+import os
 
-TOKEN = "OTcyMzUxOTk0MDkyMjA0MDYy.G4GSHu.DbLzn1SdoJLlG_KAce3ZGvPlJoe1nbwnpmjAyA"
+TOKEN=os.getenv("TOKEN")
 PREFIX = "%"
 client=commands.Bot(command_prefix=PREFIX, intents=discord.Intents.all())
 client.remove_command("help")

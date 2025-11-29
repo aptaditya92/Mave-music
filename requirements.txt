@@ -1,0 +1,4 @@
+discord.py==2.3.2
+wavelink==2.6.3
+requests
+aiohttp
