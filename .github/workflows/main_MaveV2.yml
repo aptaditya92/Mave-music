@@ -1,4 +1,4 @@
-name: Python Discord Bot CI/CD
+name: MaveV2
 
 on:
   push:
