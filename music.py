@@ -82,19 +82,6 @@ class Music(commands.Cog):
         embed = discord.Embed(description=description, color=0x262338)
         return await ctx.send(embed=embed)
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print(f"Music Cog Loaded as {self.client.user}")
-        nodes = [
-            wavelink.Node(
-                uri="http://lavalinkv4.serenetia.com:80",
-                password="youshallnotpass"
-            )
-        ]
-        await wavelink.Pool.connect(client=self.client, nodes=nodes)
-        print("Lavalink Node Connected.")
-        await self.client.change_presence(
-            activity=discord.Activity(type=discord.ActivityType.listening, name="Music"))
 
     @commands.command(aliases=["connect"])
     async def join(self, ctx):
