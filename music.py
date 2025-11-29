@@ -5,8 +5,23 @@ import requests
 import re
 import json
 import urllib.parse
-              
+
 #•Helpers=================================
+
+def stack(lst, base: int):
+    i=1
+    stacked = []
+    element = []
+    for dot in lst:
+        if i <= base:
+            element.append(dot)
+            i+=1
+        else:
+            stacked.append(element)
+            element = []
+            i=0
+    stacked.append(element)
+    return stacked
 
 def get_duration(duration: int):
     minutes, seconds = divmod(duration // 1000, 60)
@@ -132,17 +147,21 @@ class Music(commands.Cog):
 
         player: wavelink.Player = ctx.voice_client
         vc = player
-        if "spotify.com/playlist" in query:
+        if "spotify.com/playlist" in query or "spotify.com/album" in query:
             tracks = await wavelink.Playable.search(query)
             await self.send_embed(ctx, f"💾 Loaded playlist: **[{tracks.name}]({query})** with `{len(tracks.tracks)}` songs")
 
             if tracks:
                 if not player.playing:
                    await player.play(tracks[0])
+                   arg="Started playing"
                 else:
                     await player.queue.put_wait(tracks[0])
+                    arg="Added to queue"
                 for track in tracks[1:]:
                     await player.queue.put_wait(track)
+            track = tracks[0]
+            return await self.send_embed(ctx, f"🎶 {arg}: **[{track.title}]({track.uri})**")
 
 
         tracks: wavelink.Search = await wavelink.Playable.search(search)
@@ -160,22 +179,24 @@ class Music(commands.Cog):
 
     # ---------------------- QUEUE COMMAND ----------------------
     @commands.command(aliases=["q"])
-    async def queue(self, ctx):
+    async def queue(self, ctx, page=1):
         player: wavelink.Player = ctx.voice_client
         if player and player.playing:
             upcoming = player.queue.copy()
-            embed = discord.Embed(color=0x262338)
+            
 
             if upcoming:
+                stacked=stack(upcoming, 10)
+                if page > (len(stacked)):
+                    page = len(stacked)
+                if page < 1:
+                    page = 1
                 
                 queue_list = "\n".join(
-                    [f"{i+1}. 💿 [{get_duration(track.length)}] - **[{track.title}]({track.uri})**" for i, track in enumerate(upcoming[:10])]
+                    [f"{10*(page-1)+i+1}. 💿 [{get_duration(track.length)}] - **[{track.title}]({track.uri})**" for i, track in enumerate(stacked[page-1])]
                 )
-                embed.add_field(
-                    name="Upcoming",
-                    value=queue_list,
-                    inline=False)
-                embed.set_footer(text=f"{len(upcoming)} Songs in queue",icon_url=self.client.user.avatar.url)
+                embed=embed = discord.Embed(title="🎵 Server Queue",description=queue_list,color=0x262338)
+                embed.set_footer(text=f"Page {page}/{len(stacked)} • Use %queue <Page>",icon_url=self.client.user.avatar.url)
                 return await ctx.send(embed=embed)
             else:
                 return await self.send_embed(ctx, "⚠️ No songs in queue.")
